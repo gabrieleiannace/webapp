@@ -1,0 +1,21 @@
+.star:hover {
+    animation: expandedStars 0.2s linear;
+    animation-fill-mode: forwards;
+}
+
+@keyframes expandedStars {
+    100% {
+        font-size: 110%;
+        background-image: none;
+    }
+}
+
+.active {
+    background-color: #212529 !important;
+    border-color: #212529 !important;
+}
+
+#mycontainer {
+    display: flex;
+    align-items: right;
+}

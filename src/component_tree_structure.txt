@@ -1,0 +1,15 @@
+App
+    FilmManager
+        FilmLibraryNavBar
+
+        FilmTable
+            n*FilmRow
+                EditButton
+                    FilmModal
+                        FilmForm
+                
+                DeleteFilmAction
+
+            AddButton
+                FilmModal
+                    FilmForm
