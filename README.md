@@ -1,71 +1,121 @@
-# Getting Started with Create React App
+# Storia
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+- Nato nel 2006 come progetto personale di Graydon Hoare, un dipendente di Mozilla Research, nel 2009 ha ricevuto una prima sponsorizzazione da parte di Mozilla, poi è diventato open source.
+- Rust 1.0 - 15 maggio 2015.
+- Versioni successive rilasciate costantemente ogni 6 settimane.
+- Rust 1.66.0 - 12 dicembre 2022.
+- Usato in produzione in molti contesti:
+    - Firefox contiene 3M LoC scritte in Rust (9%).
+    - Dropbox usa Rust nel suo motore di sincronizzazione.
+    - npm usa Rust per implementare il servizio di autorizzazione del registry.
+    - deno, il successore di node.js, è scritto in Rust.
+    - Amazon Web Services usa Rust (progetto Firecracker) per ottenere alte prestazioni in servizi come Lambda, EC2, S3,...
+    - Microsoft ha portato tutta l'API Windows in Rust ([https://github.com/microsoft/windows-rs](https://github.com/microsoft/windows-rs)).
 
-## Available Scripts
+# Evoluzione
 
-In the project directory, you can run:
+- [https://github.com/dtolnay/star-history](https://github.com/dtolnay/star-history).
 
-### `npm start`
+# Obiettivi del linguaggio
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- Offrire un linguaggio per la programmazione di sistema privo di comportamenti non definiti, concorrente e pratico.
+- I linguaggi esistenti, ad un livello di astrazione ed efficienza simile, sono soggetti a molteplici limiti:
+    - Poca attenzione alla sicurezza (safety) dei costrutti.
+    - Scarso supporto alla correttezza formale dell'esecuzione concorrente.
+    - Mancano di strumenti di corredo a supporto della creazione, condivisione e messa in campo.
+    - Offrono un controllo limitato sull'uso delle risorse computazionali.
+- Offrire astrazioni a costo nullo per la maggior parte degli idiomi di programmazione.
+    - Permettendo al programmatore di adottare lo stile preferito nella scrittura di un algoritmo (iterazione, ricorsione, chiusure, ...) e garantendo la generazione del miglior codice assembler possibile, senza introdurre costi aggiuntivi per funzionalità non richieste.
+    - [https://boats.gitlab.io/blog/post/zero-cost-abstractions/](https://boats.gitlab.io/blog/post/zero-cost-abstractions/).
+- Supportare la produttività del programmatore.
+    - Offrendo costrutti di alto livello ed un ecosistema di compilazione/gestione delle dipendenze/test integrato.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Esempio
 
-### `npm test`
+```rust
+fn main() {
+    let mut v = vec![1, 2, 3, 4, 5];
+    v.push(6);
+    println!("{:?}", v);
+}
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```
 
-### `npm run build`
+# Presupposti di base
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- Linguaggio compilato (non basato su bytecode).
+- Fortemente tipizzato in fase di compilazione.
+- Paradigma imperativo, ma con aspetti funzionali.
+- Non ha né garbage collection né ambiente di supporto all'esecuzione.
+- Sistema dei tipi sofisticato.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+# Confronto
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Controllo / Prestazioni
 
-### `npm run eject`
+- C.
+- Rust.
+- C++.
+- Go.
+- Java.
+- Python.
+- ML.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Sicurezza
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Rust si appoggia ad un sistema di validazione dei tipi in fase di compilazione che impedisce (per i programmi che non fanno uso delle estensioni unsafe) i seguenti tipi di errore:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- Dangling pointer - uso di puntatori ad aree di memoria GIÀ rilasciate.
+- Doppi rilasci - tentativo di restituire al S.O. un'area di memoria già rilasciata.
+- Corse critiche - accesso a dati il cui contenuto è indeterminato a seguito di eventi fuori dal controllo del programma stesso (ordine di schedulazione, attese legate all'I/O, ...).
+- Buffer overflow - tentativi di accedere ad aree di memoria contigue a quelle possedute da una variabile, ma non di sua pertinenza.
+- Iteratori invalidi - accesso iterativo (uno alla volta) agli elementi contenuti in una collezione che viene modificata mentre l'iterazione è in corso.
+- Overflow aritmetici (solo in modalità debug) - esecuzione di operazioni aritmetiche che, a seguito della limitata capacità di rappresentazione dei numeri binari, portano ad errori grossolani (2_000_000_000 + 2_000_000_000 = -294_967_296).
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Il linguaggio favorisce l'uso di costrutti immutabili e propone convenzioni volte a limitare il rischio di compromissione dei dati.
 
-## Learn More
+## vs Python
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- Molto più veloce.
+- Normalmente destinato a contesti differenti.
+- Minor consumo di memoria.
+- Vero multi-threading.
+- Tipi algebrici.
+- Approccio all'ereditarietà differente.
+- Pattern matching.
+- Linguaggio staticamente tipato: molti meno arresti anomali in fase di esecuzione.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## vs Java
 
-### Code Splitting
+- Nessun overhead causato dalla JVM: non si verificano pause causate dal Garbage Collector.
+- Minor consumo di memoria.
+- Nessun costo di astrazione.
+- Approccio all'ereditarietà ed alla programmazione generica differente.
+- Pattern matching.
+- Sistema di compilazione unico.
+- Gestione delle dipendenze integrata.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## vs C/C++
 
-### Analyzing the Bundle Size
+- Nessun segmentation fault.
+- Nessun buffer overflow.
+- Nessun null pointer.
+- Nessuna corsa critica.
+- Sistema dei tipi più elaborato.
+- Approccio all'ereditarietà differente.
+- Processo di costruzione unificato.
+- Gestione delle dipendenze integrata.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## vs Go
 
-### Making a Progressive Web App
+- Nessuna pausa a causa del Garbage Collector.
+- Minor consumo di memoria.
+- Nessun null pointer.
+- Migliore gestione degli errori.
+- Programmazione concorrente sicura.
+- Sistema dei tipi più solido.
+- Approccio all'ereditarietà differente.
+- Nessun costo di astrazione.
+- Gestione delle dipendenze.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-# webapp
+Questo documento presenta una panoramica del linguaggio di programmazione Rust, con un focus sulla sua storia, obiettivi, presupposti di base e confronto con altri linguaggi come C, C++, Java, Python e Go. Rust è un linguaggio staticamente e fortemente tipato, adatto alla programmazione di sistema, che offre un controllo totale dell'uso della memoria e ottimizza al massimo il codice generato. Il linguaggio si appoggia ad un sistema di validazione dei tipi in fase di compilazione che impedisce molti tipi di errori, favorendo l'uso di costrutti immutabili e proponendo convenzioni volte a limitare il rischio di compromissione dei dati.
